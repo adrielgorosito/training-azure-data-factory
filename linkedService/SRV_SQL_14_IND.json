@@ -1,0 +1,21 @@
+{
+	"name": "SRV_SQL_14_IND",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"server": "192.168.1.166",
+			"database": "Induccion_AzureDataFactory",
+			"encrypt": "mandatory",
+			"trustServerCertificate": true,
+			"authenticationType": "Windows",
+			"userName": "SRV-SQL-14-IND\\induccion1",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI2YWQ2YWFjMy00NGZlLTRjNzgtOTNhZC05NWE1Y2Q1ZGVmMmYiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "integrationRuntime1",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

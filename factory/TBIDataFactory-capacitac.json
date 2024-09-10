@@ -1,0 +1,9 @@
+{
+	"name": "TBIDataFactory-capacitac",
+	"location": "brazilsouth",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "772f16de-8901-4301-a079-1ae34d589326",
+		"tenantId": "a447b9c2-a213-4ec1-8103-3ea69a516a59"
+	}
+}
