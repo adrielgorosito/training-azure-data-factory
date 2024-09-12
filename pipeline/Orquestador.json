@@ -21,10 +21,107 @@
 				"typeProperties": {
 					"scripts": [
 						{
-							"type": "Query"
+							"type": "Query",
+							"text": "UPDATE [dbo].[DW_PROCESOS] \nSET estado = 6, \nWHERE estado = 1 AND modulo = 'Ventas'"
 						}
 					],
 					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "EstadosUnoASeis",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@or(equals(pipeline().parameters.proceso_nuevo, '1'),equals(pipeline().TriggerType, 'Scheduler'))",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "UltimaFechaHasta",
+							"type": "Lookup",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": "SELECT TOP 1 fecha_hasta_procesada\nFROM DW_PROCESOS\nWHERE estado = 2 AND modulo = 'Ventas'\nORDER BY id_proceso DESC",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"dataset": {
+									"referenceName": "DW_Procesos",
+									"type": "DatasetReference"
+								}
+							}
+						},
+						{
+							"name": "CrearProcesoNuevo",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "UltimaFechaHasta",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureSQL_Ventas_Service",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"parameters": [
+											{
+												"name": "FechaDesde",
+												"type": "Datetime",
+												"value": "@if(contains(activity('UltimaFechaHasta').output,'firstRow'),activity('UltimaFechaHasta').output.firstRow,'1900-01-01T00:00:00')"
+											},
+											{
+												"name": "FechaHasta",
+												"type": "Datetime",
+												"value": "@coalesce(pipeline().parameters.FechaFin,utcNow())"
+											},
+											{
+												"name": "Direccion",
+												"value": "",
+												"direction": "Input"
+											}
+										],
+										"type": "Query",
+										"text": "INSERT INTO [dbo].[DW_Procesos] \nVALUES('Ventas', @fechaDesde,@fechaHasta, NULL, NULL, 0)"
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						}
+					]
 				}
 			}
 		],

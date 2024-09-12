@@ -1,0 +1,51 @@
+{
+	"name": "DW_Procesos",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSQL_Ventas_Service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_proceso",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "modulo",
+				"type": "nchar"
+			},
+			{
+				"name": "fecha_desde_procesada",
+				"type": "date"
+			},
+			{
+				"name": "fecha_hasta_procesada",
+				"type": "date"
+			},
+			{
+				"name": "fecha_inicio_ejecucion",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "fecha_fin_ejecucion",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "estado",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DW_PROCESOS"
+		}
+	}
+}
