@@ -1,0 +1,55 @@
+{
+	"name": "Orquestador",
+	"properties": {
+		"activities": [
+			{
+				"name": "EstadosUnoASeis",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "AzureSQL_Ventas_Service",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query"
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			}
+		],
+		"parameters": {
+			"FechaInicio": {
+				"type": "string"
+			},
+			"FechaFin": {
+				"type": "string"
+			},
+			"proceso_nuevo": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"id_proceso_actual": {
+				"type": "Integer"
+			},
+			"fecha_desde": {
+				"type": "String"
+			},
+			"fecha_hasta": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
