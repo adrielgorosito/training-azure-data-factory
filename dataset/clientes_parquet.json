@@ -1,0 +1,20 @@
+{
+	"name": "clientes_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "origen",
+				"fileSystem": "capacitacion"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

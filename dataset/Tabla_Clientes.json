@@ -1,0 +1,35 @@
+{
+	"name": "Tabla_Clientes",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SRV_SQL_14_IND",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "cod_cliente",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "nombre",
+				"type": "nchar"
+			},
+			{
+				"name": "apellido",
+				"type": "nchar"
+			},
+			{
+				"name": "id_localidad",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "clientes"
+		}
+	}
+}

@@ -101,15 +101,24 @@
 											{
 												"name": "FechaDesde",
 												"type": "Datetime",
-												"value": "@if(contains(activity('UltimaFechaHasta').output,'firstRow'),activity('UltimaFechaHasta').output.firstRow,'1900-01-01T00:00:00')"
+												"value": {
+													"value": "@if(contains(activity('UltimaFechaHasta').output,'firstRow'),activity('UltimaFechaHasta').output.firstRow,'1900-01-01T00:00:00')",
+													"type": "Expression"
+												},
+												"direction": "Output"
 											},
 											{
 												"name": "FechaHasta",
 												"type": "Datetime",
-												"value": "@coalesce(pipeline().parameters.FechaFin,utcNow())"
+												"value": {
+													"value": "@coalesce(pipeline().parameters.FechaFin,utcNow())",
+													"type": "Expression"
+												},
+												"direction": "Output"
 											},
 											{
 												"name": "Direccion",
+												"type": "String",
 												"value": "",
 												"direction": "Input"
 											}
@@ -183,7 +192,10 @@
 							"userProperties": [],
 							"typeProperties": {
 								"variableName": "id_proceso_actual",
-								"value": "@string(item().id_proceso)"
+								"value": {
+									"value": "@item().id_proceso",
+									"type": "Expression"
+								}
 							}
 						},
 						{
@@ -251,6 +263,39 @@
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true
+							}
+						},
+						{
+							"name": "ErrorExtraccion",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "PL_Extraccion",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureSQL_Ventas_Service",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": "UPDATE DW_PROCESOS SET estado=3, fecha_fin_ejecucion = getdate()\nWHERE id_proceso= @procesoActual"
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
 							}
 						}
 					]

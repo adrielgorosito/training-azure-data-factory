@@ -1,0 +1,46 @@
+{
+	"name": "Tabla_Ventas",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SRV_SQL_14_IND",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "id_venta",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "fecha",
+				"type": "date"
+			},
+			{
+				"name": "cliente",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "vendedor",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "producto",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "cantidad",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "ventas"
+		}
+	}
+}
