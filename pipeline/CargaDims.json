@@ -1,0 +1,74 @@
+{
+	"name": "CargaDims",
+	"properties": {
+		"activities": [
+			{
+				"name": "CargaDimsFecha",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "AzureSQL_Ventas_Service",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"parameters": [
+								{
+									"name": "StartDate",
+									"type": "Datetime",
+									"value": "utcnow()",
+									"direction": "Input"
+								},
+								{
+									"name": "EndDate",
+									"type": "Datetime",
+									"value": "utcnow()",
+									"direction": "Input"
+								},
+								{
+									"name": "CurrentDate",
+									"type": "Datetime",
+									"value": "utcnow()",
+									"direction": "Input"
+								}
+							],
+							"type": "NonQuery",
+							"text": {
+								"value": "BEGIN\n        SELECT @StartDate = COALESCE(MAX(fecha),'1900/01/01') FROM DIM_FECHA\n\tSET @EndDate = cast(cast(year(getdate()) + 1 as char(4)) + '1231' as datetime)  --fecha actual + 1\n        SET @CurrentDate = @StartDate \n\tWHILE  @CurrentDate<= @EndDate \n\tBEGIN\n                IF NOT EXISTS (SELECT * FROM DIM_FECHA WHERE fecha = @currentDate)\n                BEGIN\n\t\t\tINSERT INTO DIM_FECHA (id_fecha, fecha, año, mes, dia)\n\t\t\t   VALUES(\n                                          (DATEPART(year , @CurrentDate) * 10000) + (DATEPART(month , @CurrentDate) * 100) + DATEPART(day , @CurrentDate)  --fechaID\n\t\t\t\t\t  , @CurrentDate\t\t\t--fecha\n\t\t\t\t\t  , DATEPART(year , @CurrentDate)\t--año\n\t\t\t\t\t  , DATEPART(month , @CurrentDate)\t--mes\n\t\t\t\t\t  , DATEPART(day , @CurrentDate)\t--dia \n\t\t\t   )\n                END\n\t\tSET @CurrentDate = dateadd(day,1,@CurrentDate)\n\tEND\nEND",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
+				"name": "ErrorCargaDims",
+				"type": "Fail",
+				"dependsOn": [
+					{
+						"activity": "CargaDimsFecha",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"message": "Error al cargar las dimensiones",
+					"errorCode": "4"
+				}
+			}
+		],
+		"annotations": []
+	}
+}

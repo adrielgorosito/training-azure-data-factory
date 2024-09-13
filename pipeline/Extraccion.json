@@ -188,7 +188,10 @@
 				"typeProperties": {
 					"source": {
 						"type": "SqlServerSource",
-						"sqlReaderQuery": "SELECT * FROM Ventas    \nWHERE fecha BETWEEN '@{pipeline().parameters.FechaDesde}' AND '@{pipeline().parameters.FechaHasta}'\n",
+						"sqlReaderQuery": {
+							"value": "SELECT * FROM Ventas    \nWHERE fecha BETWEEN '@{pipeline().parameters.FechaDesde}' AND '@{pipeline().parameters.FechaHasta}'\n",
+							"type": "Expression"
+						},
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},

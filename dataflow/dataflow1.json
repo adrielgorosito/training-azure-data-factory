@@ -1,0 +1,133 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "vendedores_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "OrigenVendedores"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Vendedor",
+						"type": "DatasetReference"
+					},
+					"name": "DimVendedor"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DIM_Vendedor",
+						"type": "DatasetReference"
+					},
+					"name": "ReceptorUpsert"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Vendedor",
+						"type": "DatasetReference"
+					},
+					"name": "ReceptorDelete"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DistinctOrigen"
+				},
+				{
+					"name": "Upsert"
+				},
+				{
+					"name": "DistinctExistentesDim"
+				},
+				{
+					"name": "NoExisten"
+				},
+				{
+					"name": "Delete"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          cod_cliente as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          id_localidad as integer,",
+				"          cod_localidad as integer,",
+				"          localidad as string,",
+				"          provincia as string,",
+				"          cod_vendedor as integer,",
+				"          departamento as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> OrigenVendedores",
+				"source(output(",
+				"          cod_vendedor as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          departamento as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> DimVendedor",
+				"OrigenVendedores aggregate(groupBy(HASHorigen = sha2(256,cod_vendedor)),",
+				"     each(match(true()), $$ = first($$))) ~> DistinctOrigen",
+				"DistinctOrigen alterRow(upsertIf(true())) ~> Upsert",
+				"DimVendedor aggregate(groupBy(HASHexistentes = sha2(256,cod_vendedor)),",
+				"     each(match(true()), $$ = first($$))) ~> DistinctExistentesDim",
+				"DistinctExistentesDim, DistinctOrigen exists(HASHexistentes == HASHorigen,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> NoExisten",
+				"NoExisten alterRow(deleteIf(true())) ~> Delete",
+				"Upsert sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          cod_vendedor as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          departamento as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:['cod_vendedor'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     mapColumn(",
+				"          cod_vendedor,",
+				"          nombre,",
+				"          apellido,",
+				"          departamento",
+				"     )) ~> ReceptorUpsert",
+				"Delete sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          cod_vendedor as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          departamento as string",
+				"     ),",
+				"     deletable:true,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     keys:['cod_vendedor'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 2) ~> ReceptorDelete"
+			]
+		}
+	}
+}

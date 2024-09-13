@@ -1,0 +1,34 @@
+{
+	"name": "DIM_Vendedor",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SRV_SQL_14_IND",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "cod_vendedor",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "nombre",
+				"type": "nchar"
+			},
+			{
+				"name": "apellido",
+				"type": "nchar"
+			},
+			{
+				"name": "departamento",
+				"type": "nchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "vendedores"
+		}
+	}
+}
