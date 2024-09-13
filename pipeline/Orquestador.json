@@ -123,6 +123,138 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "ProcesosActuales",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "If Condition1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT \n       [id_proceso]\n      ,[modulo]\n      ,[fecha_desde_procesada]\n      ,[fecha_hasta_procesada]\n      ,[fecha_inicio_ejecucion]\n      ,[fecha_fin_ejecucion]\n      ,[estado]\nFROM [dbo].[DW_PROCESOS]\nWHERE [modulo] = 'Ventas' AND [estado] = 0\nORDER BY [id_proceso]",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DW_Procesos",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEachProceso",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "ProcesosActuales",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('ProcesosActuales').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "SetProcesoActual",
+							"type": "AppendVariable",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "id_proceso_actual",
+								"value": "@string(item().id_proceso)"
+							}
+						},
+						{
+							"name": "ActualizarAUno",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "SetProcesoActual",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureSQL_Ventas_Service",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"parameters": [
+											{
+												"name": "procesoActual",
+												"type": "Int16",
+												"value": {
+													"value": "@variables('id_proceso_actual')",
+													"type": "Expression"
+												},
+												"direction": "Input"
+											}
+										],
+										"type": "Query",
+										"text": "UPDATE [dbo].[DW_Procesos] \nSET estado = 1, fecha_inicio_ejecucion = getdate(), fecha_fin_ejecucion = null\nWHERE id_proceso = @procesoActual"
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						},
+						{
+							"name": "PL_Extraccion",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "ActualizarAUno",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "Extraccion",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true
+							}
+						}
+					]
+				}
 			}
 		],
 		"parameters": {
@@ -137,9 +269,6 @@
 			}
 		},
 		"variables": {
-			"id_proceso_actual": {
-				"type": "Integer"
-			},
 			"fecha_desde": {
 				"type": "String"
 			},
