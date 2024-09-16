@@ -10,11 +10,29 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": "dbo.vendedores.parquet",
 				"folderPath": "origen",
 				"fileSystem": "capacitacion"
 			},
 			"compressionCodec": "snappy"
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "cod_vendedor",
+				"type": "INT32"
+			},
+			{
+				"name": "nombre",
+				"type": "UTF8"
+			},
+			{
+				"name": "apellido",
+				"type": "UTF8"
+			},
+			{
+				"name": "departamento",
+				"type": "UTF8"
+			}
+		]
 	}
 }

@@ -1,0 +1,55 @@
+{
+	"name": "DIM_Clientes",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSQL_Ventas_Service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_cliente",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "cod_cliente",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "nombre",
+				"type": "nchar"
+			},
+			{
+				"name": "apellido",
+				"type": "nchar"
+			},
+			{
+				"name": "localidad",
+				"type": "nchar"
+			},
+			{
+				"name": "provincia",
+				"type": "nchar"
+			},
+			{
+				"name": "validez_desde",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "validez_hasta",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DIM_CLIENTE"
+		}
+	}
+}

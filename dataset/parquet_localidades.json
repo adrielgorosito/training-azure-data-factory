@@ -10,11 +10,25 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": "dbo.localidades.parquet",
 				"folderPath": "origen",
 				"fileSystem": "capacitacion"
 			},
 			"compressionCodec": "snappy"
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "cod_localidad",
+				"type": "INT32"
+			},
+			{
+				"name": "localidad",
+				"type": "UTF8"
+			},
+			{
+				"name": "provincia",
+				"type": "UTF8"
+			}
+		]
 	}
 }

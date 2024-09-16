@@ -1,0 +1,140 @@
+{
+	"name": "SCD_DimCliente",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "parquet_clientes",
+						"type": "DatasetReference"
+					},
+					"name": "OrigenClientes"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Clientes",
+						"type": "DatasetReference"
+					},
+					"name": "DimClientes"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DIM_Productos",
+						"type": "DatasetReference"
+					},
+					"name": "ReceptorUpsert",
+					"description": "Exportar datos a DIM_Productos"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Productos",
+						"type": "DatasetReference"
+					},
+					"name": "ReceptorDelete"
+				}
+			],
+			"transformations": [
+				{
+					"name": "DistinctOrigen"
+				},
+				{
+					"name": "Upsert"
+				},
+				{
+					"name": "DistinctExistentesDim"
+				},
+				{
+					"name": "NoExisten"
+				},
+				{
+					"name": "Delete"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          cod_cliente as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          id_localidad as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> OrigenClientes",
+				"source(output(",
+				"          id_cliente as integer,",
+				"          cod_cliente as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          localidad as string,",
+				"          provincia as string,",
+				"          validez_desde as timestamp,",
+				"          validez_hasta as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> DimClientes",
+				"OrigenClientes aggregate(groupBy(HASHorigen = sha2(256,cod_producto)),",
+				"     each(match(true()), $$ = first($$))) ~> DistinctOrigen",
+				"DistinctOrigen alterRow(upsertIf(true())) ~> Upsert",
+				"DimClientes aggregate(groupBy(HASHexistentes = sha2(256,cod_producto)),",
+				"     each(match(true()), $$ = first($$))) ~> DistinctExistentesDim",
+				"DistinctExistentesDim, DistinctOrigen exists(HASHexistentes == HASHorigen,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> NoExisten",
+				"NoExisten alterRow(deleteIf(true())) ~> Delete",
+				"Upsert sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_producto as integer,",
+				"          cod_producto as integer,",
+				"          nombre as string,",
+				"          categoria as string,",
+				"          marca as string,",
+				"          precio as float",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:true,",
+				"     keys:[(cod_producto)],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          cod_producto,",
+				"          nombre = Nombre,",
+				"          categoria = Categoria,",
+				"          marca = Marca,",
+				"          precio = Precio",
+				"     )) ~> ReceptorUpsert",
+				"Delete sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_producto as integer,",
+				"          cod_producto as integer,",
+				"          nombre as string,",
+				"          categoria as string,",
+				"          marca as string,",
+				"          precio as float",
+				"     ),",
+				"     deletable:true,",
+				"     insertable:false,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     keys:['cod_producto'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 2,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> ReceptorDelete"
+			]
+		}
+	}
+}

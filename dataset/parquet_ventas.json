@@ -10,11 +10,37 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": "data_43ec5cb8-11c0-44fc-a30c-843aaaadf015_c303acde-a0f0-4778-be04-b34f75dc1969.parquet",
 				"folderPath": "origen",
 				"fileSystem": "capacitacion"
 			},
 			"compressionCodec": "snappy"
 		},
-		"schema": []
+		"schema": [
+			{
+				"name": "id_venta",
+				"type": "INT32"
+			},
+			{
+				"name": "fecha",
+				"type": "DATE"
+			},
+			{
+				"name": "cliente",
+				"type": "INT32"
+			},
+			{
+				"name": "vendedor",
+				"type": "INT32"
+			},
+			{
+				"name": "producto",
+				"type": "INT32"
+			},
+			{
+				"name": "cantidad",
+				"type": "INT32"
+			}
+		]
 	}
 }
