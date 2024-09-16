@@ -262,7 +262,17 @@
 									"referenceName": "Extraccion",
 									"type": "PipelineReference"
 								},
-								"waitOnCompletion": true
+								"waitOnCompletion": true,
+								"parameters": {
+									"FechaDesde": {
+										"value": "@item().fecha_desde_procesada",
+										"type": "Expression"
+									},
+									"FechaHasta": {
+										"value": "@item().fecha_hasta_procesada",
+										"type": "Expression"
+									}
+								}
 							}
 						},
 						{
@@ -342,6 +352,10 @@
 			},
 			"fecha_hasta": {
 				"type": "String"
+			},
+			"id_proceso_actual": {
+				"type": "Integer",
+				"defaultValue": "@string(item().id_proceso)"
 			}
 		},
 		"annotations": []

@@ -264,13 +264,11 @@
 			}
 		],
 		"parameters": {
-			"fechaDesde": {
-				"type": "string",
-				"defaultValue": "@item().fecha_desde_procesada"
+			"FechaDesde": {
+				"type": "string"
 			},
-			"fechaHasta": {
-				"type": "string",
-				"defaultValue": "@item().fecha_hasta_procesada"
+			"FechaHasta": {
+				"type": "string"
 			}
 		},
 		"annotations": []
