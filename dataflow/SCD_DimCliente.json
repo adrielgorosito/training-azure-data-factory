@@ -17,23 +17,50 @@
 						"type": "DatasetReference"
 					},
 					"name": "DimClientes"
+				},
+				{
+					"dataset": {
+						"referenceName": "parquet_localidades",
+						"type": "DatasetReference"
+					},
+					"name": "OrigenLocalidades"
 				}
 			],
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "DIM_Productos",
+						"referenceName": "DIM_Clientes",
 						"type": "DatasetReference"
 					},
-					"name": "ReceptorUpsert",
-					"description": "Exportar datos a DIM_Productos"
+					"name": "InsertNuevo"
 				},
 				{
 					"dataset": {
-						"referenceName": "DIM_Productos",
+						"referenceName": "DIM_Clientes",
 						"type": "DatasetReference"
 					},
-					"name": "ReceptorDelete"
+					"name": "InsertVersion"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Clientes",
+						"type": "DatasetReference"
+					},
+					"name": "ReceptorUpdate"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Clientes",
+						"type": "DatasetReference"
+					},
+					"name": "ReceptorUpdateNombreApellido"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Clientes",
+						"type": "DatasetReference"
+					},
+					"name": "ReceptorBaja"
 				}
 			],
 			"transformations": [
@@ -41,16 +68,79 @@
 					"name": "DistinctOrigen"
 				},
 				{
-					"name": "Upsert"
+					"name": "InsertarNuevoCliente"
+				},
+				{
+					"name": "SelectOrigen"
+				},
+				{
+					"name": "InnerJoin"
+				},
+				{
+					"name": "SelectDim"
 				},
 				{
 					"name": "DistinctExistentesDim"
 				},
 				{
-					"name": "NoExisten"
+					"name": "NoExiste"
 				},
 				{
-					"name": "Delete"
+					"name": "ValidezDesdeNuevo"
+				},
+				{
+					"name": "Existe"
+				},
+				{
+					"name": "InnerJoin2"
+				},
+				{
+					"name": "ValidezHastaNull"
+				},
+				{
+					"name": "LocalidadDistinta"
+				},
+				{
+					"name": "ValidezDesdeHasta"
+				},
+				{
+					"name": "InsertNuevaVersion"
+				},
+				{
+					"name": "SelectAnterior"
+				},
+				{
+					"name": "ValidezHasta"
+				},
+				{
+					"name": "UpdateAnterior"
+				},
+				{
+					"name": "SelectNuevo"
+				},
+				{
+					"name": "NombreOApellidoDistintos"
+				},
+				{
+					"name": "DerivadasNombreApellido"
+				},
+				{
+					"name": "Select"
+				},
+				{
+					"name": "UpdateNombreApellido"
+				},
+				{
+					"name": "NoExistenBaja"
+				},
+				{
+					"name": "ValidezHastaBaja"
+				},
+				{
+					"name": "UpdateBaja"
+				},
+				{
+					"name": "Select2"
 				}
 			],
 			"scriptLines": [
@@ -78,62 +168,232 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> DimClientes",
-				"OrigenClientes aggregate(groupBy(HASHorigen = sha2(256,cod_producto)),",
+				"source(output(",
+				"          cod_localidad as integer,",
+				"          localidad as string,",
+				"          provincia as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> OrigenLocalidades",
+				"SelectOrigen aggregate(groupBy(HASHorigen = sha2(256,origen_cod_cliente)),",
 				"     each(match(true()), $$ = first($$))) ~> DistinctOrigen",
-				"DistinctOrigen alterRow(upsertIf(true())) ~> Upsert",
-				"DimClientes aggregate(groupBy(HASHexistentes = sha2(256,cod_producto)),",
+				"Select2 alterRow(insertIf(true())) ~> InsertarNuevoCliente",
+				"InnerJoin select(mapColumn(",
+				"          origen_cod_cliente = cod_cliente,",
+				"          origen_nombre = nombre,",
+				"          origen_apellido = apellido,",
+				"          origen_localidad = localidad,",
+				"          origen_provincia = provincia",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectOrigen",
+				"OrigenClientes, OrigenLocalidades join(id_localidad == cod_localidad,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> InnerJoin",
+				"DimClientes select(mapColumn(",
+				"          dim_id_cliente = id_cliente,",
+				"          dim_cod_cliente = cod_cliente,",
+				"          dim_nombre = nombre,",
+				"          dim_apellido = apellido,",
+				"          dim_localidad = localidad,",
+				"          dim_provincia = provincia,",
+				"          validez_desde,",
+				"          validez_hasta",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectDim",
+				"SelectDim aggregate(groupBy(HASHexistentes = sha2(256,dim_cod_cliente)),",
 				"     each(match(true()), $$ = first($$))) ~> DistinctExistentesDim",
-				"DistinctExistentesDim, DistinctOrigen exists(HASHexistentes == HASHorigen,",
+				"DistinctOrigen, DistinctExistentesDim exists(HASHorigen == HASHexistentes,",
 				"     negate:true,",
-				"     broadcast: 'auto')~> NoExisten",
-				"NoExisten alterRow(deleteIf(true())) ~> Delete",
-				"Upsert sink(allowSchemaDrift: true,",
+				"     broadcast: 'auto')~> NoExiste",
+				"NoExiste derive(validez_desde = currentTimestamp(),",
+				"          validez_hasta = toTimestamp(null()),",
+				"          id_cliente = origen_cod_cliente) ~> ValidezDesdeNuevo",
+				"DistinctOrigen, DistinctExistentesDim exists(origen_cod_cliente == dim_cod_cliente,",
+				"     negate:false,",
+				"     broadcast: 'auto')~> Existe",
+				"Existe, SelectDim join(origen_cod_cliente == dim_cod_cliente,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> InnerJoin2",
+				"InnerJoin2 filter(validez_hasta == toTimestamp(null())) ~> ValidezHastaNull",
+				"ValidezHastaNull filter(origen_localidad != dim_localidad) ~> LocalidadDistinta",
+				"SelectNuevo derive(validez_desde = currentTimestamp(),",
+				"          validez_hasta = toTimestamp(null())) ~> ValidezDesdeHasta",
+				"ValidezDesdeHasta alterRow(insertIf(true())) ~> InsertNuevaVersion",
+				"LocalidadDistinta select(mapColumn(",
+				"          id_cliente = dim_id_cliente,",
+				"          cod_cliente = dim_cod_cliente,",
+				"          nombre = dim_nombre,",
+				"          apellido = dim_apellido,",
+				"          localidad = dim_localidad,",
+				"          provincia = dim_provincia,",
+				"          validez_desde,",
+				"          validez_hasta",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectAnterior",
+				"SelectAnterior derive(validez_hasta = currentTimestamp()) ~> ValidezHasta",
+				"ValidezHasta alterRow(updateIf(true())) ~> UpdateAnterior",
+				"LocalidadDistinta select(mapColumn(",
+				"          dim_id_cliente,",
+				"          dim_cod_cliente = origen_cod_cliente,",
+				"          dim_nombre = origen_nombre,",
+				"          dim_apellido = origen_apellido,",
+				"          dim_localidad = origen_localidad,",
+				"          dim_provincia = origen_provincia",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectNuevo",
+				"InnerJoin2 filter(or(notEquals(origen_nombre, dim_nombre), notEquals(origen_apellido, dim_apellido))) ~> NombreOApellidoDistintos",
+				"NombreOApellidoDistintos derive(nombre = origen_nombre,",
+				"          dim_apellido = origen_apellido) ~> DerivadasNombreApellido",
+				"DerivadasNombreApellido select(mapColumn(",
+				"          id_cliente = dim_id_cliente,",
+				"          cod_cliente = dim_cod_cliente,",
+				"          nombre = dim_nombre,",
+				"          apellido = dim_apellido,",
+				"          localidad = dim_localidad,",
+				"          provincia = dim_provincia,",
+				"          validez_desde,",
+				"          validez_hasta,",
+				"          nombre",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> Select",
+				"Select alterRow(updateIf(true())) ~> UpdateNombreApellido",
+				"DistinctExistentesDim, DistinctOrigen join(dim_id_cliente == origen_cod_cliente,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> NoExistenBaja",
+				"NoExistenBaja derive(validez_hasta = currentTimestamp()) ~> ValidezHastaBaja",
+				"ValidezHastaBaja alterRow(updateIf(true())) ~> UpdateBaja",
+				"ValidezDesdeNuevo select(mapColumn(",
+				"          id_cliente,",
+				"          nombre = origen_nombre,",
+				"          apellido = origen_apellido,",
+				"          localidad = origen_localidad,",
+				"          provincia = origen_provincia,",
+				"          validez_desde,",
+				"          validez_hasta",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> Select2",
+				"InsertarNuevoCliente sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
-				"          id_producto as integer,",
-				"          cod_producto as integer,",
+				"          id_cliente as integer,",
+				"          cod_cliente as integer,",
 				"          nombre as string,",
-				"          categoria as string,",
-				"          marca as string,",
-				"          precio as float",
+				"          apellido as string,",
+				"          localidad as string,",
+				"          provincia as string,",
+				"          validez_desde as timestamp,",
+				"          validez_hasta as timestamp",
 				"     ),",
 				"     deletable:false,",
-				"     insertable:false,",
+				"     insertable:true,",
 				"     updateable:false,",
-				"     upsertable:true,",
-				"     keys:[(cod_producto)],",
+				"     upsertable:false,",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     saveOrder: 1,",
-				"     errorHandlingOption: 'stopOnFirstError',",
-				"     mapColumn(",
-				"          cod_producto,",
-				"          nombre = Nombre,",
-				"          categoria = Categoria,",
-				"          marca = Marca,",
-				"          precio = Precio",
-				"     )) ~> ReceptorUpsert",
-				"Delete sink(allowSchemaDrift: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> InsertNuevo",
+				"InsertNuevaVersion sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
-				"          id_producto as integer,",
-				"          cod_producto as integer,",
+				"          id_cliente as integer,",
+				"          cod_cliente as integer,",
 				"          nombre as string,",
-				"          categoria as string,",
-				"          marca as string,",
-				"          precio as float",
+				"          apellido as string,",
+				"          localidad as string,",
+				"          provincia as string,",
+				"          validez_desde as timestamp,",
+				"          validez_hasta as timestamp",
 				"     ),",
-				"     deletable:true,",
-				"     insertable:false,",
+				"     deletable:false,",
+				"     insertable:true,",
 				"     updateable:false,",
 				"     upsertable:false,",
-				"     keys:['cod_producto'],",
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     saveOrder: 2,",
-				"     errorHandlingOption: 'stopOnFirstError') ~> ReceptorDelete"
+				"     errorHandlingOption: 'stopOnFirstError') ~> InsertVersion",
+				"UpdateAnterior sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_cliente as integer,",
+				"          cod_cliente as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          localidad as string,",
+				"          provincia as string,",
+				"          validez_desde as timestamp,",
+				"          validez_hasta as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['id_cliente'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 3,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> ReceptorUpdate",
+				"UpdateNombreApellido sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_cliente as integer,",
+				"          cod_cliente as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          localidad as string,",
+				"          provincia as string,",
+				"          validez_desde as timestamp,",
+				"          validez_hasta as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['id_cliente','validez_desde'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 4,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> ReceptorUpdateNombreApellido",
+				"UpdateBaja sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_cliente as integer,",
+				"          cod_cliente as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          localidad as string,",
+				"          provincia as string,",
+				"          validez_desde as timestamp,",
+				"          validez_hasta as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:false,",
+				"     updateable:true,",
+				"     upsertable:false,",
+				"     keys:['dim_id_cliente','validez_desde'],",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 5,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> ReceptorBaja"
 			]
 		}
 	}
