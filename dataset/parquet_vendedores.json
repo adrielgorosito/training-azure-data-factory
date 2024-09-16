@@ -1,5 +1,5 @@
 {
-	"name": "vendedores_parquet",
+	"name": "parquet_vendedores",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage1",

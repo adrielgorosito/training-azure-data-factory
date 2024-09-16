@@ -1,5 +1,5 @@
 {
-	"name": "clientes_parquet",
+	"name": "parquet_clientes",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage1",

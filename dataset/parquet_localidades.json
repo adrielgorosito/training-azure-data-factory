@@ -1,5 +1,5 @@
 {
-	"name": "localidades_parquet",
+	"name": "parquet_localidades",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureBlobStorage1",

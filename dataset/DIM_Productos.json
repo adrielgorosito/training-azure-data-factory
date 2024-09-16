@@ -1,0 +1,44 @@
+{
+	"name": "DIM_Productos",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSQL_Ventas_Service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_producto",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "cod_producto",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "nombre",
+				"type": "nchar"
+			},
+			{
+				"name": "categoria",
+				"type": "nchar"
+			},
+			{
+				"name": "marca",
+				"type": "nchar"
+			},
+			{
+				"name": "precio",
+				"type": "real",
+				"precision": 7
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DIM_PRODUCTO"
+		}
+	}
+}

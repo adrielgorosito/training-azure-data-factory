@@ -47,7 +47,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "vendedores_parquet",
+						"referenceName": "parquet_vendedores",
 						"type": "DatasetReference"
 					}
 				]
@@ -104,7 +104,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "clientes_parquet",
+						"referenceName": "parquet_clientes",
 						"type": "DatasetReference"
 					}
 				]
@@ -161,7 +161,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "localidades_parquet",
+						"referenceName": "parquet_localidades",
 						"type": "DatasetReference"
 					}
 				]
@@ -222,7 +222,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "ventas_parquet",
+						"referenceName": "parquet_ventas",
 						"type": "DatasetReference"
 					}
 				]
