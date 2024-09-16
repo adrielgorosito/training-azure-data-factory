@@ -69,6 +69,7 @@
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> OrigenVendedores",
 				"source(output(",
+				"          id_vendedor as integer,",
 				"          cod_vendedor as integer,",
 				"          nombre as string,",
 				"          apellido as string,",
@@ -90,6 +91,7 @@
 				"Upsert sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
+				"          id_vendedor as integer,",
 				"          cod_vendedor as integer,",
 				"          nombre as string,",
 				"          apellido as string,",
@@ -104,6 +106,7 @@
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     saveOrder: 1,",
+				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
 				"          cod_vendedor,",
 				"          nombre,",
@@ -113,6 +116,7 @@
 				"Delete sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
+				"          id_vendedor as integer,",
 				"          cod_vendedor as integer,",
 				"          nombre as string,",
 				"          apellido as string,",
@@ -126,7 +130,8 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     saveOrder: 2) ~> ReceptorDelete"
+				"     saveOrder: 2,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> ReceptorDelete"
 			]
 		}
 	}

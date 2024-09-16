@@ -2,12 +2,17 @@
 	"name": "DIM_Vendedor",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "SRV_SQL_14_IND",
+			"referenceName": "AzureSQL_Ventas_Service",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
-		"type": "SqlServerTable",
+		"type": "AzureSqlTable",
 		"schema": [
+			{
+				"name": "id_vendedor",
+				"type": "int",
+				"precision": 10
+			},
 			{
 				"name": "cod_vendedor",
 				"type": "int",
@@ -28,7 +33,7 @@
 		],
 		"typeProperties": {
 			"schema": "dbo",
-			"table": "vendedores"
+			"table": "DIM_VENDEDOR"
 		}
 	}
 }
