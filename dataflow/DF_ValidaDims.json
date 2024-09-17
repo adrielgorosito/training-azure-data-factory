@@ -47,6 +47,34 @@
 						"type": "DatasetReference"
 					},
 					"name": "InsertDimProducto"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Fecha",
+						"type": "DatasetReference"
+					},
+					"name": "InsertDimFecha"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Vendedor",
+						"type": "DatasetReference"
+					},
+					"name": "InsertDimVendedor"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Clientes",
+						"type": "DatasetReference"
+					},
+					"name": "InsertDimCliente"
+				},
+				{
+					"dataset": {
+						"referenceName": "parquet_staging",
+						"type": "DatasetReference"
+					},
+					"name": "Staging"
 				}
 			],
 			"transformations": [
@@ -61,6 +89,57 @@
 				},
 				{
 					"name": "ColIfNullProducto"
+				},
+				{
+					"name": "SelectClientes"
+				},
+				{
+					"name": "SelectVendedores"
+				},
+				{
+					"name": "SelectFechas"
+				},
+				{
+					"name": "DistinctVendedores"
+				},
+				{
+					"name": "DistinctFechas"
+				},
+				{
+					"name": "NoExisteFecha"
+				},
+				{
+					"name": "NoExisteVendedor"
+				},
+				{
+					"name": "ColIfNullFecha"
+				},
+				{
+					"name": "ColIfNullVendedor"
+				},
+				{
+					"name": "DistinctClientes"
+				},
+				{
+					"name": "NoExisteCliente"
+				},
+				{
+					"name": "ColIfNullCliente"
+				},
+				{
+					"name": "BusquedaIdFecha"
+				},
+				{
+					"name": "BusquedaIdCliente"
+				},
+				{
+					"name": "BusquedaIdProducto"
+				},
+				{
+					"name": "BusquedaIdVendedor"
+				},
+				{
+					"name": "Select"
 				}
 			],
 			"scriptLines": [
@@ -139,6 +218,77 @@
 				"          categoria = '-9999',",
 				"          marca = '-9999',",
 				"          precio = '-9999') ~> ColIfNullProducto",
+				"VentasParquet select(mapColumn(",
+				"          cliente",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectClientes",
+				"VentasParquet select(mapColumn(",
+				"          vendedor",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectVendedores",
+				"VentasParquet select(mapColumn(",
+				"          fecha",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectFechas",
+				"SelectVendedores aggregate(groupBy(HASHorigen = sha2(256,vendedor)),",
+				"     each(match(true()), $$ = first($$))) ~> DistinctVendedores",
+				"SelectFechas aggregate(groupBy(HASHorigen = sha2(256,fecha)),",
+				"     each(match(true()), $$ = first($$))) ~> DistinctFechas",
+				"DistinctFechas, DimFecha exists(DistinctFechas@fecha == DimFecha@fecha,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> NoExisteFecha",
+				"DistinctVendedores, DimVendedor exists(vendedor==cod_vendedor,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> NoExisteVendedor",
+				"NoExisteFecha derive(id_fecha = coalesce(year(fecha) * 10000 + month(fecha) * 100 + dayOfMonth(fecha),-9999),",
+				"          fecha = coalesce(fecha, toTimestamp(-9999)),",
+				"          {año} = coalesce(year(fecha), -9999),",
+				"          mes = coalesce(month(fecha), -99),",
+				"          dia = coalesce(dayOfMonth(fecha), -99)) ~> ColIfNullFecha",
+				"NoExisteVendedor derive(cod_vendedor = coalesce(vendedor, -9999),",
+				"          nombre = '-9999',",
+				"          apellido = '-9999',",
+				"          departamento = '-9999') ~> ColIfNullVendedor",
+				"SelectClientes aggregate(groupBy(HASHorigen = sha2(256,cliente)),",
+				"     each(match(true()), $$ = first($$))) ~> DistinctClientes",
+				"DistinctClientes, DimCliente exists(cliente == cod_cliente,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> NoExisteCliente",
+				"NoExisteCliente derive(cod_cliente = coalesce(cliente, -9999),",
+				"          nombre = '-9999',",
+				"          apellido = '-9999',",
+				"          localidad = '-9999',",
+				"          provincia = '-9999',",
+				"          validez_desde = currentTimestamp(),",
+				"          validez_hasta = '-9999') ~> ColIfNullCliente",
+				"VentasParquet, DimFecha lookup(VentasParquet@fecha == DimFecha@fecha,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> BusquedaIdFecha",
+				"BusquedaIdFecha, DimCliente lookup(cliente == cod_cliente,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> BusquedaIdCliente",
+				"BusquedaIdCliente, DimProductos lookup(producto == cod_producto,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> BusquedaIdProducto",
+				"BusquedaIdProducto, DimVendedor lookup(vendedor == cod_vendedor,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> BusquedaIdVendedor",
+				"BusquedaIdVendedor select(mapColumn(",
+				"          id_fecha,",
+				"          id_cliente,",
+				"          id_producto,",
+				"          id_vendedor,",
+				"          cantidad",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> Select",
 				"ColIfNullProducto sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
@@ -163,7 +313,92 @@
 				"          categoria,",
 				"          marca,",
 				"          precio",
-				"     )) ~> InsertDimProducto"
+				"     )) ~> InsertDimProducto",
+				"ColIfNullFecha sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_fecha as integer,",
+				"          fecha as date,",
+				"          {año} as integer,",
+				"          mes as integer,",
+				"          dia as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id_fecha,",
+				"          fecha,",
+				"          {año},",
+				"          mes,",
+				"          dia",
+				"     )) ~> InsertDimFecha",
+				"ColIfNullVendedor sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_vendedor as integer,",
+				"          cod_vendedor as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          departamento as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          cod_vendedor,",
+				"          nombre,",
+				"          apellido,",
+				"          departamento",
+				"     )) ~> InsertDimVendedor",
+				"ColIfNullCliente sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_cliente as integer,",
+				"          cod_cliente as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          localidad as string,",
+				"          provincia as string,",
+				"          validez_desde as timestamp,",
+				"          validez_hasta as timestamp",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          cod_cliente,",
+				"          nombre,",
+				"          apellido,",
+				"          localidad,",
+				"          provincia,",
+				"          validez_desde,",
+				"          validez_hasta",
+				"     )) ~> InsertDimCliente",
+				"Select sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['staging.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> Staging"
 			]
 		}
 	}

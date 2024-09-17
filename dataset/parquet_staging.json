@@ -1,0 +1,20 @@
+{
+	"name": "parquet_staging",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "staging",
+				"fileSystem": "capacitacion"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
