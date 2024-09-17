@@ -25,19 +25,19 @@
 								{
 									"name": "StartDate",
 									"type": "Datetime",
-									"value": "utcnow()",
+									"value": "@utcnow()",
 									"direction": "Input"
 								},
 								{
 									"name": "EndDate",
 									"type": "Datetime",
-									"value": "utcnow()",
+									"value": "@utcnow()",
 									"direction": "Input"
 								},
 								{
 									"name": "CurrentDate",
 									"type": "Datetime",
-									"value": "utcnow()",
+									"value": "@utcnow()",
 									"direction": "Input"
 								}
 							],

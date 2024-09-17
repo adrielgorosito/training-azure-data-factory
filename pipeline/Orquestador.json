@@ -289,7 +289,7 @@
 								"scripts": [
 									{
 										"type": "Query",
-										"text": "UPDATE DW_PROCESOS SET estado=3, fecha_fin_ejecucion = getdate()\nWHERE id_proceso= @procesoActual"
+										"text": "UPDATE DW_PROCESOS SET estado=3, fecha_fin_ejecucion = getdate()\nWHERE id_proceso = @procesoActual"
 									}
 								],
 								"scriptBlockExecutionTimeout": "02:00:00"
