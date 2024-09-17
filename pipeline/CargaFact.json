@@ -1,0 +1,142 @@
+{
+	"name": "CargaFact",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyFact",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": {
+							"value": "DELETE FROM FACT_Venta \nWHERE id_fecha BETWEEN CAST(REPLACE('@{pipeline().parameters.FechaDesde}', '-','') AS INT) AND CAST(REPLACE('@{pipeline().parameters.FechaHasta}', '-','') AS INT)",
+							"type": "Expression"
+						},
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "id_fecha"
+								},
+								"sink": {
+									"name": "id_fecha",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "id_vendedor"
+								},
+								"sink": {
+									"name": "id_vendedor",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "id_cliente"
+								},
+								"sink": {
+									"name": "id_cliente",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "id_producto"
+								},
+								"sink": {
+									"name": "id_producto",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							},
+							{
+								"source": {
+									"name": "cantidad"
+								},
+								"sink": {
+									"name": "cantidad",
+									"type": "Int32",
+									"physicalType": "int"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "parquet_staging",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "FACT_Venta",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "ErrorCopy",
+				"type": "Fail",
+				"dependsOn": [
+					{
+						"activity": "CopyFact",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"message": "Error al copiar datos",
+					"errorCode": "6"
+				}
+			}
+		],
+		"parameters": {
+			"FechaDesde": {
+				"type": "string"
+			},
+			"FechaHasta": {
+				"type": "string"
+			}
+		},
+		"annotations": []
+	}
+}

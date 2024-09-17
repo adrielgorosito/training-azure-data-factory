@@ -1,0 +1,42 @@
+{
+	"name": "FACT_Venta",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSQL_Ventas_Service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_fecha",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_vendedor",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_cliente",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_producto",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "cantidad",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "FACT_VENTA"
+		}
+	}
+}

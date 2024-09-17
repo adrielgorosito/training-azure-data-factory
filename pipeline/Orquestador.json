@@ -420,6 +420,105 @@
 								"variableName": "id_proceso_actual",
 								"value": "@string(item().id_proceso)"
 							}
+						},
+						{
+							"name": "PL_CargaFact",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "PL_ValidaDims",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "CargaFact",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"FechaDesde": {
+										"value": "@item().fecha_desde_procesada",
+										"type": "Expression"
+									},
+									"FechaHasta": {
+										"value": "@item().fecha_hasta_procesada",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "ErrorCargaFact",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "PL_CargaFact",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureSQL_Ventas_Service",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": "UPDATE DW_PROCESOS SET estado=6, fecha_fin_ejecucion = getdate()\nWHERE id_proceso= @procesoActual"
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						},
+						{
+							"name": "EjecutadoConExito",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "PL_CargaFact",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureSQL_Ventas_Service",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": "UPDATE DW_PROCESOS SET estado=2, fecha_fin_ejecucion = getdate()\nWHERE id_proceso= @procesoActual"
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
 						}
 					]
 				}

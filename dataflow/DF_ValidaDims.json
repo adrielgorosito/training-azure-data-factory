@@ -281,10 +281,10 @@
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> BusquedaIdVendedor",
 				"BusquedaIdVendedor select(mapColumn(",
-				"          id_fecha,",
-				"          id_cliente,",
-				"          id_producto,",
-				"          id_vendedor,",
+				"          id_fecha = VentasParquet@fecha,",
+				"          id_cliente = cliente,",
+				"          id_producto = producto,",
+				"          id_vendedor = vendedor,",
 				"          cantidad",
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
@@ -398,7 +398,8 @@
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> Staging"
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> Staging"
 			]
 		}
 	}
