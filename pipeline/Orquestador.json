@@ -22,7 +22,7 @@
 					"scripts": [
 						{
 							"type": "Query",
-							"text": "UPDATE [dbo].[DW_PROCESOS] \nSET estado = 6, \nWHERE estado = 1 AND modulo = 'Ventas'"
+							"text": "UPDATE [dbo].[DW_PROCESOS] \nSET estado = 6 \nWHERE estado = 1 AND modulo = 'Ventas'"
 						}
 					],
 					"scriptBlockExecutionTimeout": "02:00:00"
@@ -418,7 +418,10 @@
 							"userProperties": [],
 							"typeProperties": {
 								"variableName": "id_proceso_actual",
-								"value": "@string(item().id_proceso)"
+								"value": {
+									"value": "@item().id_proceso",
+									"type": "Expression"
+								}
 							}
 						},
 						{
