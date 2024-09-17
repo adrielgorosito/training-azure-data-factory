@@ -191,7 +191,6 @@
 							"dependsOn": [],
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "id_proceso_actual",
 								"value": {
 									"value": "@item().id_proceso",
 									"type": "Expression"
@@ -330,6 +329,62 @@
 								},
 								"waitOnCompletion": true
 							}
+						},
+						{
+							"name": "ErrorCargaDims",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "PL_CargaDims",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureSQL_Ventas_Service",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": "UPDATE DW_PROCESOS SET estado=4, fecha_fin_ejecucion = getdate()\nWHERE id_proceso= @procesoActual"
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						},
+						{
+							"name": "PL_ValidaDims",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "PL_CargaDims",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "ValidaDims",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true
+							}
 						}
 					]
 				}
@@ -347,15 +402,14 @@
 			}
 		},
 		"variables": {
+			"id_proceso_actual": {
+				"type": "Integer"
+			},
 			"fecha_desde": {
 				"type": "String"
 			},
 			"fecha_hasta": {
-				"type": "String"
-			},
-			"id_proceso_actual": {
-				"type": "Integer",
-				"defaultValue": "@string(item().id_proceso)"
+				"type": "Integer"
 			}
 		},
 		"annotations": []

@@ -60,12 +60,123 @@
 						"dependencyConditions": [
 							"Failed"
 						]
+					},
+					{
+						"activity": "SCD_DimVendedor",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "SCD_DimProducto",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "SCD_DimCliente",
+						"dependencyConditions": [
+							"Failed"
+						]
 					}
 				],
 				"userProperties": [],
 				"typeProperties": {
 					"message": "Error al cargar las dimensiones",
 					"errorCode": "4"
+				}
+			},
+			{
+				"name": "SCD_DimVendedor",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "CargaDimsFecha",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "SCD_DimVendedor",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SCD_DimProducto",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "SCD_DimVendedor",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "SCD_DimProducto",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "SCD_DimCliente",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "SCD_DimProducto",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "SCD_DimCliente",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
 				}
 			}
 		],

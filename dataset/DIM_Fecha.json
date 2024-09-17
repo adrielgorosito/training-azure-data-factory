@@ -1,0 +1,41 @@
+{
+	"name": "DIM_Fecha",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSQL_Ventas_Service",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_fecha",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "fecha",
+				"type": "date"
+			},
+			{
+				"name": "año",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "mes",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "dia",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "DIM_FECHA"
+		}
+	}
+}

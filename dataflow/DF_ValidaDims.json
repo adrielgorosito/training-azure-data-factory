@@ -1,0 +1,170 @@
+{
+	"name": "DF_ValidaDims",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "parquet_ventas",
+						"type": "DatasetReference"
+					},
+					"name": "VentasParquet"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Clientes",
+						"type": "DatasetReference"
+					},
+					"name": "DimCliente"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Vendedor",
+						"type": "DatasetReference"
+					},
+					"name": "DimVendedor"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Productos",
+						"type": "DatasetReference"
+					},
+					"name": "DimProductos"
+				},
+				{
+					"dataset": {
+						"referenceName": "DIM_Fecha",
+						"type": "DatasetReference"
+					},
+					"name": "DimFecha"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DIM_Productos",
+						"type": "DatasetReference"
+					},
+					"name": "InsertDimProducto"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SelectProductos"
+				},
+				{
+					"name": "DistinctProductos"
+				},
+				{
+					"name": "NoExisteProducto"
+				},
+				{
+					"name": "ColIfNullProducto"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_venta as integer,",
+				"          fecha as date,",
+				"          cliente as integer,",
+				"          vendedor as integer,",
+				"          producto as integer,",
+				"          cantidad as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> VentasParquet",
+				"source(output(",
+				"          id_cliente as integer,",
+				"          cod_cliente as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          localidad as string,",
+				"          provincia as string,",
+				"          validez_desde as timestamp,",
+				"          validez_hasta as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> DimCliente",
+				"source(output(",
+				"          id_vendedor as integer,",
+				"          cod_vendedor as integer,",
+				"          nombre as string,",
+				"          apellido as string,",
+				"          departamento as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> DimVendedor",
+				"source(output(",
+				"          id_producto as integer,",
+				"          cod_producto as integer,",
+				"          nombre as string,",
+				"          categoria as string,",
+				"          marca as string,",
+				"          precio as float",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> DimProductos",
+				"source(output(",
+				"          id_fecha as integer,",
+				"          fecha as date,",
+				"          {año} as integer,",
+				"          mes as integer,",
+				"          dia as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> DimFecha",
+				"VentasParquet select(mapColumn(",
+				"          producto",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectProductos",
+				"SelectProductos aggregate(groupBy(HASHorigen = sha2(256,producto)),",
+				"     each(match(true()), $$ = first($$))) ~> DistinctProductos",
+				"DistinctProductos, DimProductos exists(producto == cod_producto,",
+				"     negate:true,",
+				"     broadcast: 'auto')~> NoExisteProducto",
+				"NoExisteProducto derive(cod_producto = coalesce(producto, -9999),",
+				"          nombre = '-9999',",
+				"          categoria = '-9999',",
+				"          marca = '-9999',",
+				"          precio = '-9999') ~> ColIfNullProducto",
+				"ColIfNullProducto sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_producto as integer,",
+				"          cod_producto as integer,",
+				"          nombre as string,",
+				"          categoria as string,",
+				"          marca as string,",
+				"          precio as float",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          cod_producto,",
+				"          nombre,",
+				"          categoria,",
+				"          marca,",
+				"          precio",
+				"     )) ~> InsertDimProducto"
+			]
+		}
+	}
+}
