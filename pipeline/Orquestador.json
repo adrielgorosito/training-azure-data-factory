@@ -288,7 +288,18 @@
 							"typeProperties": {
 								"scripts": [
 									{
-										"type": "Query",
+										"parameters": [
+											{
+												"name": "procesoActual",
+												"type": "Int64",
+												"value": {
+													"value": "@variables('id_proceso_actual')",
+													"type": "Expression"
+												},
+												"direction": "Input"
+											}
+										],
+										"type": "NonQuery",
 										"text": "UPDATE DW_PROCESOS SET estado=3, fecha_fin_ejecucion = getdate()\nWHERE id_proceso = @procesoActual"
 									}
 								],
@@ -344,7 +355,18 @@
 							"typeProperties": {
 								"scripts": [
 									{
-										"type": "Query",
+										"parameters": [
+											{
+												"name": "procesoActual",
+												"type": "Int64",
+												"value": {
+													"value": "@variables('id_proceso_actual')",
+													"type": "Expression"
+												},
+												"direction": "Input"
+											}
+										],
+										"type": "NonQuery",
 										"text": "UPDATE DW_PROCESOS SET estado=4, fecha_fin_ejecucion = getdate()\nWHERE id_proceso= @procesoActual"
 									}
 								],
@@ -400,6 +422,14 @@
 							"typeProperties": {
 								"scripts": [
 									{
+										"parameters": [
+											{
+												"name": "procesoActual",
+												"type": "Int64",
+												"value": "@variables('id_proceso_actual')",
+												"direction": "Input"
+											}
+										],
 										"type": "Query",
 										"text": "UPDATE DW_PROCESOS SET estado=5, fecha_fin_ejecucion = getdate()\nWHERE id_proceso= @procesoActual"
 									}
@@ -483,7 +513,18 @@
 							"typeProperties": {
 								"scripts": [
 									{
-										"type": "Query",
+										"parameters": [
+											{
+												"name": "procesoActual",
+												"type": "Int64",
+												"value": {
+													"value": "@variables('id_proceso_actual')",
+													"type": "Expression"
+												},
+												"direction": "Input"
+											}
+										],
+										"type": "NonQuery",
 										"text": "UPDATE DW_PROCESOS SET estado=6, fecha_fin_ejecucion = getdate()\nWHERE id_proceso= @procesoActual"
 									}
 								],
@@ -516,6 +557,14 @@
 							"typeProperties": {
 								"scripts": [
 									{
+										"parameters": [
+											{
+												"name": "procesoActual",
+												"type": "Int64",
+												"value": "@variables('id_proceso_actual')",
+												"direction": "Input"
+											}
+										],
 										"type": "Query",
 										"text": "UPDATE DW_PROCESOS SET estado=2, fecha_fin_ejecucion = getdate()\nWHERE id_proceso= @procesoActual"
 									}
