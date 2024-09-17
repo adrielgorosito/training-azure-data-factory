@@ -186,18 +186,6 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "SetProcesoActual",
-							"type": "AppendVariable",
-							"dependsOn": [],
-							"userProperties": [],
-							"typeProperties": {
-								"value": {
-									"value": "@item().id_proceso",
-									"type": "Expression"
-								}
-							}
-						},
-						{
 							"name": "ActualizarAUno",
 							"type": "Script",
 							"dependsOn": [
@@ -384,6 +372,53 @@
 									"type": "PipelineReference"
 								},
 								"waitOnCompletion": true
+							}
+						},
+						{
+							"name": "ErrorValidaDims",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "PL_ValidaDims",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureSQL_Ventas_Service",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": "UPDATE DW_PROCESOS SET estado=5, fecha_fin_ejecucion = getdate()\nWHERE id_proceso= @procesoActual"
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						},
+						{
+							"name": "SetProcesoActual",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "id_proceso_actual",
+								"value": "@string(item().id_proceso)"
 							}
 						}
 					]
