@@ -105,7 +105,7 @@
 													"value": "@if(contains(activity('UltimaFechaHasta').output,'firstRow'),activity('UltimaFechaHasta').output.firstRow,'1900-01-01T00:00:00')",
 													"type": "Expression"
 												},
-												"direction": "Output"
+												"direction": "Input"
 											},
 											{
 												"name": "FechaHasta",
@@ -114,16 +114,10 @@
 													"value": "@coalesce(pipeline().parameters.FechaFin,utcNow())",
 													"type": "Expression"
 												},
-												"direction": "Output"
-											},
-											{
-												"name": "Direccion",
-												"type": "String",
-												"value": "",
 												"direction": "Input"
 											}
 										],
-										"type": "Query",
+										"type": "NonQuery",
 										"text": "INSERT INTO [dbo].[DW_Procesos] \nVALUES('Ventas', @fechaDesde,@fechaHasta, NULL, NULL, 0)"
 									}
 								],
@@ -426,7 +420,10 @@
 											{
 												"name": "procesoActual",
 												"type": "Int64",
-												"value": "@variables('id_proceso_actual')",
+												"value": {
+													"value": "@variables('id_proceso_actual')",
+													"type": "Expression"
+												},
 												"direction": "Input"
 											}
 										],
@@ -561,7 +558,10 @@
 											{
 												"name": "procesoActual",
 												"type": "Int64",
-												"value": "@variables('id_proceso_actual')",
+												"value": {
+													"value": "@variables('id_proceso_actual')",
+													"type": "Expression"
+												},
 												"direction": "Input"
 											}
 										],
