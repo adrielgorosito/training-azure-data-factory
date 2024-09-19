@@ -25,25 +25,34 @@
 								{
 									"name": "StartDate",
 									"type": "Datetime",
-									"value": "@utcnow()",
+									"value": {
+										"value": "@utcnow()",
+										"type": "Expression"
+									},
 									"direction": "Input"
 								},
 								{
 									"name": "EndDate",
 									"type": "Datetime",
-									"value": "@utcnow()",
+									"value": {
+										"value": "@utcnow()",
+										"type": "Expression"
+									},
 									"direction": "Input"
 								},
 								{
 									"name": "CurrentDate",
 									"type": "Datetime",
-									"value": "@utcnow()",
+									"value": {
+										"value": "@utcnow()",
+										"type": "Expression"
+									},
 									"direction": "Input"
 								}
 							],
 							"type": "NonQuery",
 							"text": {
-								"value": "BEGIN\n        SELECT @StartDate = COALESCE(MAX(fecha),'1900/01/01') FROM DIM_FECHA\n\tSET @EndDate = cast(cast(year(getdate()) + 1 as char(4)) + '1231' as datetime)  --fecha actual + 1\n        SET @CurrentDate = @StartDate \n\tWHILE  @CurrentDate<= @EndDate \n\tBEGIN\n                IF NOT EXISTS (SELECT * FROM DIM_FECHA WHERE fecha = @currentDate)\n                BEGIN\n\t\t\tINSERT INTO DIM_FECHA (id_fecha, fecha, año, mes, dia)\n\t\t\t   VALUES(\n                                          (DATEPART(year , @CurrentDate) * 10000) + (DATEPART(month , @CurrentDate) * 100) + DATEPART(day , @CurrentDate)  --fechaID\n\t\t\t\t\t  , @CurrentDate\t\t\t--fecha\n\t\t\t\t\t  , DATEPART(year , @CurrentDate)\t--año\n\t\t\t\t\t  , DATEPART(month , @CurrentDate)\t--mes\n\t\t\t\t\t  , DATEPART(day , @CurrentDate)\t--dia \n\t\t\t   )\n                END\n\t\tSET @CurrentDate = dateadd(day,1,@CurrentDate)\n\tEND\nEND",
+								"value": "BEGIN\n        SELECT @StartDate = COALESCE(MAX(fecha),'1900/01/01') FROM DIM_FECHA\n\tSET @EndDate = cast(cast(year(getdate()) + 1 as char(4)) + '1231' as datetime)\n        SET @CurrentDate = @StartDate \n\tWHILE  @CurrentDate<= @EndDate \n\tBEGIN\n                IF NOT EXISTS (SELECT * FROM DIM_FECHA WHERE fecha = @currentDate)\n                BEGIN\n\t\t\tINSERT INTO DIM_FECHA (id_fecha, fecha, año, mes, dia)\n\t\t\t   VALUES(\n                                          (DATEPART(year , @CurrentDate) * 10000) + (DATEPART(month , @CurrentDate) * 100) + DATEPART(day , @CurrentDate) \n\t\t\t\t\t  , @CurrentDate\n\t\t\t\t\t  , DATEPART(year , @CurrentDate)\n\t\t\t\t\t  , DATEPART(month , @CurrentDate)\n\t\t\t\t\t  , DATEPART(day , @CurrentDate)\n\t\t\t   )\n                END\n\t\tSET @CurrentDate = dateadd(day,1,@CurrentDate)\n\tEND\nEND",
 								"type": "Expression"
 							}
 						}
