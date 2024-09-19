@@ -29,7 +29,7 @@
 					"sink": {
 						"type": "AzureSqlSink",
 						"preCopyScript": {
-							"value": "DELETE FROM FACT_Venta \nWHERE id_fecha BETWEEN CAST(REPLACE('@{pipeline().parameters.FechaDesde}', '-','') AS INT) AND CAST(REPLACE('@{pipeline().parameters.FechaHasta}', '-','') AS INT)",
+							"value": "DELETE FROM FACT_Venta \nWHERE id_fecha BETWEEN \n    CAST(FORMAT(CONVERT(DATETIME, '@{pipeline().parameters.FechaDesde}'), 'yyyyMMdd') AS INT) AND \n    CAST(FORMAT(CONVERT(DATETIME, '@{pipeline().parameters.FechaHasta}'), 'yyyyMMdd') AS INT)\n",
 							"type": "Expression"
 						},
 						"writeBehavior": "insert",
