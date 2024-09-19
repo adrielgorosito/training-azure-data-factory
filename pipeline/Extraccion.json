@@ -32,6 +32,56 @@
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "cod_vendedor",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "cod_vendedor",
+									"type": "Int32",
+									"physicalType": "INT_32"
+								}
+							},
+							{
+								"source": {
+									"name": "nombre",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "nombre",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "apellido",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "apellido",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "departamento",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "departamento",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							}
+						],
 						"typeConversion": true,
 						"typeConversionSettings": {
 							"allowDataTruncation": true,
@@ -89,6 +139,56 @@
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "cod_cliente",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "cod_cliente",
+									"type": "Int32",
+									"physicalType": "INT_32"
+								}
+							},
+							{
+								"source": {
+									"name": "nombre",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "nombre",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "apellido",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "apellido",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "id_localidad",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "id_localidad",
+									"type": "Int32",
+									"physicalType": "INT_32"
+								}
+							}
+						],
 						"typeConversion": true,
 						"typeConversionSettings": {
 							"allowDataTruncation": true,
@@ -146,6 +246,44 @@
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "cod_localidad",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "cod_localidad",
+									"type": "Int32",
+									"physicalType": "INT_32"
+								}
+							},
+							{
+								"source": {
+									"name": "localidad",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "localidad",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "provincia",
+									"type": "String",
+									"physicalType": "nchar"
+								},
+								"sink": {
+									"name": "provincia",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							}
+						],
 						"typeConversion": true,
 						"typeConversionSettings": {
 							"allowDataTruncation": true,
@@ -207,6 +345,80 @@
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "id_venta",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "id_venta",
+									"type": "Int32",
+									"physicalType": "INT_32"
+								}
+							},
+							{
+								"source": {
+									"name": "fecha",
+									"type": "DateTime",
+									"physicalType": "date"
+								},
+								"sink": {
+									"name": "fecha",
+									"type": "DateTime",
+									"physicalType": "INT_96"
+								}
+							},
+							{
+								"source": {
+									"name": "cliente",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "cliente",
+									"type": "Int32",
+									"physicalType": "INT_32"
+								}
+							},
+							{
+								"source": {
+									"name": "vendedor",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "vendedor",
+									"type": "Int32",
+									"physicalType": "INT_32"
+								}
+							},
+							{
+								"source": {
+									"name": "producto",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "producto",
+									"type": "Int32",
+									"physicalType": "INT_32"
+								}
+							},
+							{
+								"source": {
+									"name": "cantidad",
+									"type": "Int32",
+									"physicalType": "int"
+								},
+								"sink": {
+									"name": "cantidad",
+									"type": "Int32",
+									"physicalType": "INT_32"
+								}
+							}
+						],
 						"typeConversion": true,
 						"typeConversionSettings": {
 							"allowDataTruncation": true,
