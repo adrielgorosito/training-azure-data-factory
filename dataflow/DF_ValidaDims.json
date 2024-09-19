@@ -281,7 +281,7 @@
 				"     pickup: 'any',",
 				"     broadcast: 'auto')~> BusquedaIdVendedor",
 				"BusquedaIdVendedor select(mapColumn(",
-				"          id_fecha = VentasParquet@fecha,",
+				"          id_fecha,",
 				"          id_cliente = cliente,",
 				"          id_producto = producto,",
 				"          id_vendedor = vendedor,",
@@ -306,6 +306,7 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 1,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
 				"          cod_producto,",
@@ -330,6 +331,7 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 2,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
 				"          id_fecha,",
@@ -354,6 +356,7 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 3,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
 				"          cod_vendedor,",
@@ -380,6 +383,7 @@
 				"     format: 'table',",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 4,",
 				"     errorHandlingOption: 'stopOnFirstError',",
 				"     mapColumn(",
 				"          cod_cliente,",
@@ -399,6 +403,7 @@
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
+				"     saveOrder: 5,",
 				"     partitionBy('hash', 1)) ~> Staging"
 			]
 		}
