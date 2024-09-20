@@ -102,7 +102,7 @@
 												"name": "FechaDesde",
 												"type": "Datetime",
 												"value": {
-													"value": "@if(contains(activity('UltimaFechaHasta').output,'firstRow'),activity('UltimaFechaHasta').output.firstRow,'1900-01-01T00:00:00')",
+													"value": "@if(contains(activity('UltimaFechaHasta').output,'firstRow'),formatDateTime(activity('UltimaFechaHasta').output.firstRow.fecha_hasta_procesada,'yyyy-MM-ddTHH:mm:ss'),'1900-01-01T00:00:00')\n",
 													"type": "Expression"
 												},
 												"direction": "Input"
@@ -118,7 +118,10 @@
 											}
 										],
 										"type": "NonQuery",
-										"text": "INSERT INTO [dbo].[DW_Procesos] \nVALUES('Ventas', @fechaDesde,@fechaHasta, NULL, NULL, 0)"
+										"text": {
+											"value": "INSERT INTO [dbo].[DW_Procesos] \nVALUES('Ventas', @fechaDesde,@fechaHasta, NULL, NULL, 0)",
+											"type": "Expression"
+										}
 									}
 								],
 								"scriptBlockExecutionTimeout": "02:00:00"
