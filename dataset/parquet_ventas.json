@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "data_43ec5cb8-11c0-44fc-a30c-843aaaadf015_c303acde-a0f0-4778-be04-b34f75dc1969.parquet",
+				"fileName": "dbo.ventas.parquet",
 				"folderPath": "origen",
 				"fileSystem": "capacitacion"
 			},
